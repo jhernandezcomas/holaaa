@@ -1,51 +1,46 @@
-# 🎧 Zoom Interview Assistant
+# 🎧 Interview Assistant — José Hernández
 
 Asistente de entrevistas en tiempo real impulsado por Claude.  
-Escucha la llamada, traduce al español lo que dice el entrevistador y te sugiere respuestas en inglés basadas en tu perfil.
+Escucha lo que dice el entrevistador en Zoom o en llamada, traduce al español y te sugiere respuestas en inglés basadas en tu perfil real.
 
 ## Cómo funciona
 
 ```
-Audio del sistema (Zoom/celular)
+Audio del sistema (Zoom / llamada)
         ↓
-   Whisper (STT)
+   Whisper — voz a texto
         ↓
-    Claude AI
+   Claude AI — conoce tu perfil
         ↓
   Traducción al español  +  Respuesta sugerida en inglés
         ↓
-  Interfaz web en tu navegador
+  Interfaz web  →  http://localhost:8000
 ```
 
 ---
 
-## Requisitos
+## Instalación (una sola vez)
 
-- Python 3.9+
-- Una API Key de Anthropic → [console.anthropic.com](https://console.anthropic.com)
-- (Linux) PulseAudio o PipeWire para capturar el audio del sistema
-
----
-
-## Instalación
-
-### 1. Clona el repositorio y entra al directorio
+### 1. Clona el repositorio
 
 ```bash
-git clone <repo-url>
-cd zoom-interview-assistant
+git clone https://github.com/jhernandezcomas/holaaa.git
+cd holaaa
 ```
 
-### 2. Instala dependencias del sistema (Linux)
+### 2. Instala dependencias del sistema
 
+**Linux / Ubuntu / Debian:**
 ```bash
 sudo apt-get install -y portaudio19-dev libsndfile1-dev
 ```
 
-En macOS:
+**macOS:**
 ```bash
 brew install portaudio
 ```
+
+**Windows:** Descarga e instala [PortAudio](http://www.portaudio.com/download.html)
 
 ### 3. Instala dependencias de Python
 
@@ -53,104 +48,101 @@ brew install portaudio
 pip install -r requirements.txt
 ```
 
-### 4. Configura tus credenciales
+### 4. Agrega tu API Key de Anthropic
 
 ```bash
 cp .env.example .env
-# Edita .env y pon tu ANTHROPIC_API_KEY
 ```
 
-### 5. Rellena tu perfil profesional
-
-Edita el archivo `profile.md` con tu información real:
-- Experiencia laboral
-- Habilidades técnicas
-- Proyectos
-- Educación
-
-**Cuanta más información pongas, mejores serán las respuestas sugeridas.**
+Abre `.env` y reemplaza `sk-ant-...` con tu clave real de [console.anthropic.com](https://console.anthropic.com).
 
 ---
 
-## Uso
+## Uso — antes de cada entrevista
 
 ```bash
 python main.py
 ```
 
-Abre tu navegador en **http://localhost:8000**
+Abre **http://localhost:8000** en tu navegador.
 
-### En la interfaz:
+### Pasos:
 
-1. **Selecciona el dispositivo de audio** — Para capturar lo que sale por los altavoces (la voz del entrevistador en Zoom), selecciona el que tenga `monitor` en el nombre (Linux/PulseAudio)
-2. **Pulsa ▶ Iniciar** antes de que empiece la entrevista
-3. Cuando el entrevistador hable, verás:
-   - **Izquierda**: transcripción en vivo (inglés)
-   - **Derecha**: traducción al español + respuesta sugerida en inglés
+1. **Selecciona el dispositivo de audio** con 🔊 en el nombre (ej. `Monitor of Built-in Audio`) — este captura lo que sale por tus altavoces/auriculares (la voz del entrevistador en Zoom)
+2. **Pulsa ▶ Iniciar** justo antes de que empiece la llamada
+3. Cuando el entrevistador hable verás:
+   - **Izquierda:** lo que dijo en inglés (en vivo)
+   - **Derecha:** traducción al español + respuesta sugerida en inglés que puedes decir
+
+### Botones:
+| Botón | Para qué sirve |
+|---|---|
+| ▶ Iniciar | Comienza a escuchar |
+| ■ Detener | Para la captura |
+| ↺ Reset contexto | Nueva entrevista (borra historial de conversación) |
+| 🗑 Limpiar | Limpia la pantalla |
 
 ---
 
-## Cómo capturar el audio de Zoom
+## Captura de audio de Zoom
 
 ### Linux (PulseAudio / PipeWire)
+Selecciona el dispositivo marcado con 🔊 — normalmente se llama  
+`Monitor of Built-in Audio Analog Stereo` o similar.
 
-El dispositivo correcto suele llamarse algo como:  
-`Monitor of Built-in Audio Analog Stereo` o `Monitor of <tu tarjeta de sonido>`
-
-En la interfaz web verás los dispositivos marcados con 🔊 si son monitores de salida.
-
-Si no aparece ningún monitor, ejecuta:
-
+Si no aparece ninguno:
 ```bash
 pactl load-module module-loopback latency_msec=1
 ```
 
 ### macOS
-
-Instala [BlackHole](https://github.com/ExistentialAudio/BlackHole) (gratis) y selecciónalo como fuente de audio en la app.
+Instala [BlackHole 2ch](https://github.com/ExistentialAudio/BlackHole) (gratis).  
+En Configuración de Sonido de macOS, establece la salida a BlackHole.  
+En la app, selecciona BlackHole como dispositivo.
 
 ### Windows
-
-Usa [VB-Cable](https://vb-audio.com/Cable/) y configura Zoom para que la salida vaya a ese dispositivo virtual. Luego selecciónalo en la app.
+Descarga [VB-Cable](https://vb-audio.com/Cable/) (gratis).  
+Pon la salida de Zoom en CABLE Input.  
+En la app, selecciona CABLE Output como dispositivo.
 
 ---
 
-## Variables de entorno (`.env`)
+## Variables en `.env`
 
-| Variable | Default | Descripción |
+| Variable | Valor por defecto | Descripción |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | **Obligatorio** |
-| `WHISPER_MODEL` | `base` | Tamaño del modelo de transcripción (`tiny`, `base`, `small`, `medium`, `large-v3`) |
-| `AUDIO_CHUNK_DURATION` | `3` | Segundos por chunk de audio |
-| `SILENCE_THRESHOLD` | `2` | Chunks de silencio antes de enviar texto a Claude |
+| `WHISPER_MODEL` | `base` | Tamaño del modelo (`tiny` = más rápido, `small`/`medium` = más preciso) |
+| `AUDIO_CHUNK_DURATION` | `3` | Segundos de audio por chunk |
+| `SILENCE_THRESHOLD` | `2` | Chunks de silencio antes de enviar a Claude |
 
 ---
 
 ## Latencia esperada
 
-| Fase | Tiempo aproximado |
+| Fase | Tiempo |
 |---|---|
-| Captura de audio | ~3 seg (duración del chunk) |
-| Transcripción Whisper (CPU, modelo base) | ~1-2 seg |
-| Claude API | ~1-2 seg |
-| **Total** | **~5-7 seg** |
+| Captura de audio | ~3 seg |
+| Transcripción Whisper (CPU, modelo base) | ~1–2 seg |
+| Claude API | ~1–2 seg |
+| **Total** | **~5–7 seg** |
 
-Para reducir latencia: usa `WHISPER_MODEL=tiny` o una GPU.
+Para menos latencia: cambia `WHISPER_MODEL=tiny` en `.env`.
 
 ---
 
-## Estructura del proyecto
+## Estructura
 
 ```
 .
-├── main.py              # Servidor FastAPI + pipeline de audio
-├── profile.md           # Tu perfil profesional (editar antes de la entrevista)
+├── main.py              # Servidor + pipeline de audio
+├── profile.md           # Tu perfil profesional (ya rellenado)
+├── .env                 # Tu API key (no se sube a git)
 ├── requirements.txt
-├── .env.example
 └── src/
     ├── audio.py         # Captura de audio del sistema
-    ├── transcriber.py   # Transcripción con faster-whisper
-    ├── assistant.py     # Integración con Claude API
+    ├── transcriber.py   # Whisper (voz → texto)
+    ├── assistant.py     # Claude AI (traducción + respuestas)
     └── ui/
         └── index.html   # Interfaz web
 ```
