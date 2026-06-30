@@ -294,6 +294,24 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Error card ─────────────────────────────────────────── */
+    .error-card {
+      background: rgba(239,68,68,.1);
+      border: 1px solid var(--red);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      animation: fadein .2s ease;
+    }
+    .error-card .err-icon { font-size: 20px; flex-shrink: 0; }
+    .error-card .err-msg  { flex: 1; font-size: 14px; line-height: 1.5; color: #fca5a5; }
+    .error-card .err-dis  {
+      background: none; border: none; color: var(--muted);
+      font-size: 18px; cursor: pointer; flex-shrink: 0; padding: 0;
+    }
+
     /* ── Toast ──────────────────────────────────────────────── */
     #toast {
       position: fixed;
@@ -587,6 +605,12 @@ function stopMic() {
 // ── Claude API ────────────────────────────────────────────────────────────────
 async function processText(text) {
   if (busy) return;
+
+  if (!apiKey) {
+    showError('Falta la API key. Toca ⚙ en la esquina superior derecha para configurarla.');
+    return;
+  }
+
   busy = true;
   removeEmpty();
   showLoader();
@@ -595,48 +619,96 @@ async function processText(text) {
   if (history.length > 30) history = history.slice(-30);
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: SYSTEM,
-        messages: history
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    // ── Network call ──────────────────────────────────────────
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system: SYSTEM,
+          messages: history
+        })
+      });
+    } catch(netErr) {
+      // CORS / sin internet / red caída
+      throw new Error(
+        'No se pudo conectar con Anthropic.\n' +
+        'Verifica que tienes internet y que la API key es correcta.\n' +
+        '(Detalle: ' + netErr.message + ')'
+      );
     }
 
-    const data = await res.json();
-    const raw  = data.content[0].text.trim();
+    // ── Parse response body ───────────────────────────────────
+    let body;
+    try { body = await res.json(); }
+    catch { throw new Error('Respuesta inválida del servidor (HTTP ' + res.status + ')'); }
+
+    // ── HTTP error codes ──────────────────────────────────────
+    if (!res.ok) {
+      const detail = body?.error?.message || '';
+      if (res.status === 401) throw new Error('API key inválida o expirada.\nToca ⚙ y vuelve a escribirla.\n' + detail);
+      if (res.status === 403) throw new Error('API key sin permiso para este modelo.\n' + detail);
+      if (res.status === 429) throw new Error('Límite de uso excedido. Espera unos segundos e intenta de nuevo.\n' + detail);
+      if (res.status === 400) throw new Error('Error en la solicitud (400).\n' + detail);
+      if (res.status === 500) throw new Error('Error interno de Anthropic (500). Intenta de nuevo.\n' + detail);
+      throw new Error('Error HTTP ' + res.status + ': ' + detail);
+    }
+
+    // ── Extract text ──────────────────────────────────────────
+    const raw = body?.content?.[0]?.text?.trim();
+    if (!raw) throw new Error('Claude respondió pero sin contenido. Intenta de nuevo.');
+
     history.push({ role: 'assistant', content: raw });
 
-    let parsed;
+    // ── Parse JSON from Claude ────────────────────────────────
+    let parsed = null;
     try { parsed = JSON.parse(raw); }
     catch {
-      const m = raw.match(/\{[\s\S]*\}/);
-      parsed = m ? JSON.parse(m[0]) : null;
+      const m = raw.match(/\{[\s\S]*?\}/);
+      if (m) { try { parsed = JSON.parse(m[0]); } catch { parsed = null; } }
     }
 
     removeLoader();
-    if (parsed) renderCard(parsed);
-    else toast('Error al parsear respuesta de Claude', false);
+
+    if (parsed && parsed.translation) {
+      renderCard(parsed);
+    } else {
+      // Fallback: show raw text if JSON didn't parse cleanly
+      renderFallback(text, raw);
+    }
 
   } catch(e) {
     removeLoader();
-    toast('Error: ' + e.message, false);
+    history.pop(); // Remove the failed message so it can be retried
+    showError(e.message);
   } finally {
     busy = false;
   }
+}
+
+function renderFallback(original, raw) {
+  const feed = document.getElementById('feed');
+  const card = document.createElement('div');
+  card.className = 'card statement';
+  card.innerHTML = `
+    <div class="cs">
+      <div class="sl sl-orig">Escuchado</div>
+      <div class="st">${esc(original)}</div>
+    </div>
+    <div class="cs">
+      <div class="sl sl-trans">Respuesta de Claude</div>
+      <div class="st" style="-webkit-user-select:text;user-select:text">${esc(raw)}</div>
+    </div>`;
+  feed.appendChild(card);
+  feed.scrollTop = feed.scrollHeight;
 }
 
 // ── Render card ───────────────────────────────────────────────────────────────
@@ -699,6 +771,19 @@ function showLoader() {
 }
 function removeLoader() { document.getElementById('loader')?.remove(); }
 function removeEmpty()  { document.getElementById('empty-hint')?.remove(); }
+
+function showError(msg) {
+  removeLoader();
+  const feed = document.getElementById('feed');
+  const el = document.createElement('div');
+  el.className = 'error-card';
+  el.innerHTML = `
+    <div class="err-icon">⚠️</div>
+    <div class="err-msg">${esc(msg).replace(/\n/g,'<br>')}</div>
+    <button class="err-dis" onclick="this.parentElement.remove()">✕</button>`;
+  feed.appendChild(el);
+  feed.scrollTop = feed.scrollHeight;
+}
 
 function clearFeed() {
   const feed = document.getElementById('feed');
