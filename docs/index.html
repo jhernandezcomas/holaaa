@@ -613,7 +613,59 @@ function stopMic() {
   clearTimeout(silenceTimer);
 }
 
-// ── Claude API ────────────────────────────────────────────────────────────────
+// ── Claude API (streaming) ────────────────────────────────────────────────────
+function extractField(text, field) {
+  const re = new RegExp('"' + field + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"');
+  const m = text.match(re);
+  return m ? m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\t/g, '\t') : null;
+}
+
+function createLiveCard() {
+  const feed = document.getElementById('feed');
+  const card = document.createElement('div');
+  card.className = 'card statement';
+  card.id = 'live-card';
+  card.innerHTML = `
+    <div class="cs" id="lc-thinking" style="display:flex;align-items:center;gap:8px">
+      <div class="spinner" style="width:16px;height:16px;border-width:2px;flex-shrink:0"></div>
+      <span style="color:var(--muted);font-size:13px">Claude está respondiendo...</span>
+    </div>
+    <div class="cs" id="lc-trans-section" style="display:none">
+      <div class="sl sl-trans">Lo que significa (español)</div>
+      <div class="st" id="lc-trans"></div>
+    </div>
+    <div class="cs" id="lc-ans-section" style="display:none">
+      <div class="sl sl-ans">Di esto en inglés 👇</div>
+      <div class="st" id="lc-ans"></div>
+    </div>`;
+  feed.appendChild(card);
+  feed.scrollTop = feed.scrollHeight;
+  return card;
+}
+
+function updateLiveCard(accumulated, seen) {
+  const feed = document.getElementById('feed');
+  if (!seen.translation) {
+    const val = extractField(accumulated, 'translation');
+    if (val) {
+      seen.translation = true;
+      document.getElementById('lc-thinking').style.display = 'none';
+      document.getElementById('lc-trans').textContent = val;
+      document.getElementById('lc-trans-section').style.display = '';
+      feed.scrollTop = feed.scrollHeight;
+    }
+  }
+  if (!seen.suggested_answer) {
+    const val = extractField(accumulated, 'suggested_answer');
+    if (val) {
+      seen.suggested_answer = true;
+      document.getElementById('lc-ans').textContent = val;
+      document.getElementById('lc-ans-section').style.display = '';
+      feed.scrollTop = feed.scrollHeight;
+    }
+  }
+}
+
 async function processText(text) {
   if (busy) return;
 
@@ -624,10 +676,12 @@ async function processText(text) {
 
   busy = true;
   removeEmpty();
-  showLoader();
 
   history.push({ role: 'user', content: `The interviewer said: "${text}"` });
   if (history.length > 16) history = history.slice(-16);
+
+  const liveCard = createLiveCard();
+  const seen = {};
 
   try {
     // ── Network call ──────────────────────────────────────────
@@ -643,13 +697,13 @@ async function processText(text) {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 512,
+          max_tokens: 400,
+          stream: true,
           system: SYSTEM,
           messages: history
         })
       });
     } catch(netErr) {
-      // CORS / sin internet / red caída
       throw new Error(
         'No se pudo conectar con Anthropic.\n' +
         'Verifica que tienes internet y que la API key es correcta.\n' +
@@ -657,25 +711,21 @@ async function processText(text) {
       );
     }
 
-    // ── Parse response body ───────────────────────────────────
-    let body;
-    try { body = await res.json(); }
-    catch { throw new Error('Respuesta inválida del servidor (HTTP ' + res.status + ')'); }
-
     // ── HTTP error codes ──────────────────────────────────────
     if (!res.ok) {
+      let body;
+      try { body = await res.json(); } catch { body = {}; }
       const detail = body?.error?.message || '';
       if (res.status === 401) throw new Error('API key inválida o expirada.\nToca ⚙ y vuelve a escribirla.\n' + detail);
       if (res.status === 403) throw new Error('API key sin permiso para este modelo.\n' + detail);
       if (res.status === 429) {
-        // Auto-retry once after 4 seconds
         if (!text._retried) {
-          removeLoader();
+          liveCard.remove();
           busy = false;
           history.pop();
           document.getElementById('mic-status').textContent = '⏳ Esperando 4s (límite de uso)...';
           await new Promise(r => setTimeout(r, 4000));
-          document.getElementById('mic-status').textContent = '🔴 Escuchando al entrevistador...';
+          document.getElementById('mic-status').textContent = 'Toca el micrófono para escuchar';
           text._retried = true;
           processText(text);
           return;
@@ -687,32 +737,55 @@ async function processText(text) {
       throw new Error('Error HTTP ' + res.status + ': ' + detail);
     }
 
-    // ── Extract text ──────────────────────────────────────────
-    const raw = body?.content?.[0]?.text?.trim();
-    if (!raw) throw new Error('Claude respondió pero sin contenido. Intenta de nuevo.');
+    // ── Stream SSE events ─────────────────────────────────────
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulated = '';
+    let leftover = '';
 
-    history.push({ role: 'assistant', content: raw });
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = leftover + decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+      leftover = lines.pop(); // incomplete line saved for next chunk
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(data);
+          if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+            accumulated += evt.delta.text;
+            updateLiveCard(accumulated, seen);
+          }
+        } catch { /* skip malformed event */ }
+      }
+    }
 
-    // ── Parse JSON from Claude ────────────────────────────────
+    if (!accumulated) throw new Error('Claude respondió pero sin contenido. Intenta de nuevo.');
+
+    history.push({ role: 'assistant', content: accumulated });
+
+    // ── Parse final JSON and render proper card ───────────────
     let parsed = null;
-    try { parsed = JSON.parse(raw); }
+    try { parsed = JSON.parse(accumulated); }
     catch {
-      const m = raw.match(/\{[\s\S]*?\}/);
+      const m = accumulated.match(/\{[\s\S]*\}/);
       if (m) { try { parsed = JSON.parse(m[0]); } catch { parsed = null; } }
     }
 
-    removeLoader();
+    liveCard.remove();
 
     if (parsed && parsed.translation) {
       renderCard(parsed);
     } else {
-      // Fallback: show raw text if JSON didn't parse cleanly
-      renderFallback(text, raw);
+      renderFallback(text, accumulated);
     }
 
   } catch(e) {
-    removeLoader();
-    history.pop(); // Remove the failed message so it can be retried
+    liveCard.remove();
+    history.pop();
     showError(e.message);
   } finally {
     busy = false;
@@ -798,7 +871,6 @@ function removeLoader() { document.getElementById('loader')?.remove(); }
 function removeEmpty()  { document.getElementById('empty-hint')?.remove(); }
 
 function showError(msg) {
-  removeLoader();
   const feed = document.getElementById('feed');
   const el = document.createElement('div');
   el.className = 'error-card';
