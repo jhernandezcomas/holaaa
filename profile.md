@@ -10,7 +10,7 @@
 - **Driver's License:** South Carolina
 
 ## Summary
-Bilingual (Spanish native, English conversational) Maintenance Technician II with 13+ years of combined experience in residential multifamily maintenance and industrial mechanical engineering. EPA 608 Universal certified with strong HVAC, electrical, plumbing, and appliance repair skills. Background includes industrial supervisory roles in Colombia managing pipelines, tanks, welding quality control (ASME B31.3), and corrosion control. Self-taught in digital tools and app development; combines hands-on technical expertise with an entrepreneurial mindset.
+Bilingual (Spanish native, English conversational) Maintenance Technician II with about 2 years of US residential multifamily maintenance experience, plus 13+ years as an industrial engineering supervisor in Colombia (pipelines, tanks, oil & gas projects, ASME B31.3 welding QC, corrosion control). EPA 608 Universal certified with strong HVAC, electrical, plumbing, and appliance repair skills. Self-taught in digital tools and app development; combines hands-on technical expertise with an entrepreneurial mindset.
 
 ## Languages
 - **Spanish:** Native
@@ -148,7 +148,7 @@ I combine real hands-on field experience — HVAC, electrical, plumbing — with
 Direct, practical, and action-oriented. I prefer concrete solutions and step-by-step execution. I manage multiple tasks in parallel and stay calm under pressure.
 
 **Why maintenance as a career in the US:**
-I came to the US with a strong technical background and quickly earned my EPA 608 Universal certification. Multifamily maintenance is a natural fit — it combines everything I'm good at: mechanical, electrical, HVAC, and people skills.
+I came to the US with a strong technical background — over 13 years supervising industrial projects in Colombia — and quickly earned my EPA 608 Universal certification. I've been doing residential multifamily maintenance for about 2 years now and it's a natural fit — it combines everything I'm good at: mechanical, electrical, HVAC, and people skills.
 
 **Area I'm actively improving:**
 My English. I communicate well in a workplace setting and I'm building toward technical fluency every day. It doesn't stop me from doing excellent work — my hands and my diagnostic skills speak for themselves.

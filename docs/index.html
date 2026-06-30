@@ -115,7 +115,7 @@
     .mic-bar {
       padding: 14px 16px;
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -385,6 +385,14 @@
 
 <!-- ── App ────────────────────────────────────────────────── -->
 <div id="app">
+  <div id="feed">
+    <div class="empty-state" id="empty-hint">
+      <div class="empty-icon">👆</div>
+      <div>Toca el botón <strong>🎤</strong> y habla (o pon el iPad cerca de los altavoces).<br><br>
+      Claude va a traducir al español y sugerirte qué responder en inglés.</div>
+    </div>
+  </div>
+
   <div class="mic-bar">
     <div class="mic-row">
       <button id="mic-btn" onclick="toggleMic()">🎤</button>
@@ -395,14 +403,6 @@
     </div>
     <div class="tip-box" id="tip">
       💡 Pon el iPad cerca de los altavoces de la computadora donde tienes Zoom. El micrófono del iPad escuchará la voz del entrevistador automáticamente.
-    </div>
-  </div>
-
-  <div id="feed">
-    <div class="empty-state" id="empty-hint">
-      <div class="empty-icon">👆</div>
-      <div>Toca el botón <strong>🎤</strong> y habla (o pon el iPad cerca de los altavoces).<br><br>
-      Claude va a traducir al español y sugerirte qué responder en inglés.</div>
     </div>
   </div>
 </div>
@@ -432,7 +432,7 @@ Current role: Maintenance Technician II
 Employer: American Landmark Apartments – Azure Carnes Crossroads, Summerville SC (Jun 2026–Present)
 Location: Hanahan, SC | Authorized to work in the US | SC Driver's License
 
-SUMMARY: Bilingual (Spanish native, English conversational) Maintenance Technician II. 13+ years combined experience in US residential multifamily maintenance and industrial mechanical engineering in Colombia. EPA 608 Universal certified. Strong HVAC, electrical, plumbing, appliance, and make-ready skills. Self-taught in digital tools and app development.
+SUMMARY: Bilingual (Spanish native, English conversational) Maintenance Technician II. About 2 years experience in US residential multifamily maintenance. Before that, 13+ years as industrial engineering supervisor in Colombia (pipelines, tanks, oil & gas projects). EPA 608 Universal certified. Strong HVAC, electrical, plumbing, appliance, and make-ready skills. Self-taught in digital tools and app development.
 
 CERTIFICATIONS: EPA 608 Universal (all refrigerant types) • Bell Partners CBMT HVAC Certification (completed) • HVAC competency • Pool/spa operation • NATE Heat Pump Installer & Service (in progress) • ASME B31.3 trained • AutoCAD technical level
 
@@ -571,14 +571,15 @@ function startMic() {
 
     if (finalText.trim()) {
       pendingText += ' ' + finalText.trim();
-      // Debounce: wait 1.5s of no new speech before processing
+      // Stop mic and process after 1s silence
       clearTimeout(silenceTimer);
       silenceTimer = setTimeout(() => {
         const text = pendingText.trim();
         pendingText = '';
         document.getElementById('mic-interim').textContent = '';
+        stopMic();
         if (text.length > 2) processText(text);
-      }, 1500);
+      }, 1000);
     }
   };
 
@@ -626,7 +627,7 @@ async function processText(text) {
   showLoader();
 
   history.push({ role: 'user', content: `The interviewer said: "${text}"` });
-  if (history.length > 30) history = history.slice(-30);
+  if (history.length > 16) history = history.slice(-16);
 
   try {
     // ── Network call ──────────────────────────────────────────
@@ -642,7 +643,7 @@ async function processText(text) {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 1024,
+          max_tokens: 512,
           system: SYSTEM,
           messages: history
         })
