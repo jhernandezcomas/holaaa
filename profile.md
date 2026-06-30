@@ -40,9 +40,15 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 ### Appliances
 - Refrigerators, dishwashers, washers, dryers, stoves, garbage disposals, water heaters
 
+### Remodeling & Renovation
+- **Bathroom remodeling:** full demolition of tile/drywall, repair of moisture-damaged framing, plumbing line adjustments, shower valve and drain component installation, tub surround installation, waterproofing, wall rebuilding, final finishing
+- **Kitchen remodeling:** removal of old cabinets, wall surface preparation, installation and alignment of new kitchen cabinets
+
 ### General Maintenance
 - Make-ready / unit turnover
 - Drywall, painting, carpentry
+- PVC pipe repair (slip-fix couplings, Fernco/Mission couplings)
+- Multimeter diagnostics (fan motors, water valves, electrical circuits)
 
 ### Industrial (Colombia — 13+ years)
 - Process piping, tanks, industrial systems
@@ -66,12 +72,17 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 ### Maintenance Technician
 **Bell Partners** | Summerville, SC | Jan 2026 – Jun 2026
 - Residential maintenance covering HVAC, plumbing, electrical and make-ready units
+- Trained on LivCor Partnership Playbook property management system
+- Managed and closed out high volume of work orders efficiently; recognized for reliability
 - Supported smooth unit turnover operations
 
 ### Maintenance Technician
 **Princeton Management LLC** | Goose Creek, SC | Oct 2024 – Jan 2026
 - First multifamily maintenance role in the US; quickly adapted to American building systems and standards
 - Demonstrated EPA 608 Universal certification in refrigerant handling
+- Performed bathroom remodeling: full tile demolition, moisture damage repair, plumbing rerouting, tub surround installation, waterproofing, and wall reconstruction
+- Completed kitchen cabinet removal and new cabinet installation
+- Property was acquired and sold; José voluntarily stayed through the entire 60-day transition period to assist management with property handover before moving to next role (demonstrates loyalty and professionalism)
 
 ### Mechanical Resident Engineer
 **IMPORTEG JM SAS** | Colombia | 2023 – 2024
@@ -124,6 +135,12 @@ My English. I communicate well in a workplace setting and I'm building toward te
 
 **Achievement I'm most proud of:**
 In Colombia, I supervised the installation and quality control of industrial piping systems under ASME B31.3 standards — complex projects with strict safety requirements. Bringing that level of attention to detail into residential maintenance in the US has been a natural advantage.
+
+**Why I left Princeton Management:**
+The property where I worked was sold. The company gave the team 60 days to complete the transition and handover. Even though I had other job offers, I chose to stay and support my team through the full process because they needed maintenance staff and I felt a responsibility to finish what I started. That's how I work — I see things through.
+
+**Most complex repair:**
+Full bathroom remodel — I handled complete tile and drywall demolition, repaired moisture-damaged wall framing, rerouted plumbing lines, installed new shower valves and drain components, fitted a new tub surround with waterproofing, rebuilt the walls, and finished the space. From demo to final inspection, start to finish.
 
 **Why I want this job:**
 I want to grow with a company that values technical excellence and gives me a path to a supervisory role. I bring reliability, a wide skill set, and a genuine work ethic every day.
