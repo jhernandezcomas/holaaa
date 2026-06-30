@@ -75,6 +75,7 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 - Trained on LivCor Partnership Playbook property management system
 - Managed and closed out high volume of work orders efficiently; recognized for reliability
 - Supported smooth unit turnover operations
+- Property was acquired and sold; José voluntarily stayed through the entire 60-day transition period to assist management with property handover before moving to next role (demonstrates loyalty and professionalism)
 
 ### Maintenance Technician
 **Princeton Management LLC** | Goose Creek, SC | Oct 2024 – Jan 2026
@@ -82,7 +83,7 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 - Demonstrated EPA 608 Universal certification in refrigerant handling
 - Performed bathroom remodeling: full tile demolition, moisture damage repair, plumbing rerouting, tub surround installation, waterproofing, and wall reconstruction
 - Completed kitchen cabinet removal and new cabinet installation
-- Property was acquired and sold; José voluntarily stayed through the entire 60-day transition period to assist management with property handover before moving to next role (demonstrates loyalty and professionalism)
+- Left for a better opportunity at Bell Partners
 
 ### Mechanical Resident Engineer
 **IMPORTEG JM SAS** | Colombia | 2023 – 2024
@@ -137,7 +138,10 @@ My English. I communicate well in a workplace setting and I'm building toward te
 In Colombia, I supervised the installation and quality control of industrial piping systems under ASME B31.3 standards — complex projects with strict safety requirements. Bringing that level of attention to detail into residential maintenance in the US has been a natural advantage.
 
 **Why I left Princeton Management:**
-The property where I worked was sold. The company gave the team 60 days to complete the transition and handover. Even though I had other job offers, I chose to stay and support my team through the full process because they needed maintenance staff and I felt a responsibility to finish what I started. That's how I work — I see things through.
+I got a better opportunity at Bell Partners — better position, better growth potential. I left on good terms.
+
+**Why I left Bell Partners:**
+The property was sold. The company gave the team 60 days to complete the transition and handover. Even though I had other job offers, I chose to stay and support my team through the full process because they needed maintenance staff and I felt a responsibility to finish what I started. That's how I work — I see things through.
 
 **Most complex repair:**
 Full bathroom remodel — I handled complete tile and drywall demolition, repaired moisture-damaged wall framing, rerouted plumbing lines, installed new shower valves and drain components, fitted a new tub surround with waterproofing, rebuilt the walls, and finished the space. From demo to final inspection, start to finish.
