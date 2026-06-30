@@ -693,13 +693,14 @@ async function processText(text) {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
+          'anthropic-dangerous-direct-browser-access': 'true',
+          'anthropic-beta': 'prompt-caching-2024-07-31'
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 400,
+          max_tokens: 600,
           stream: true,
-          system: SYSTEM,
+          system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
           messages: history
         })
       });
@@ -793,6 +794,23 @@ async function processText(text) {
 }
 
 function renderFallback(original, raw) {
+  // Try to salvage individual fields from malformed/truncated JSON
+  const trans  = extractField(raw, 'translation');
+  const ans    = extractField(raw, 'suggested_answer');
+  const ansEs  = extractField(raw, 'answer_in_spanish');
+
+  if (trans) {
+    renderCard({
+      original,
+      translation: trans,
+      is_question: /\?/.test(original),
+      suggested_answer: ans || '',
+      answer_in_spanish: ansEs || ''
+    });
+    return;
+  }
+
+  // Last resort: show raw
   const feed = document.getElementById('feed');
   const card = document.createElement('div');
   card.className = 'card statement';
@@ -802,7 +820,7 @@ function renderFallback(original, raw) {
       <div class="st">${esc(original)}</div>
     </div>
     <div class="cs">
-      <div class="sl sl-trans">Respuesta de Claude</div>
+      <div class="sl sl-trans">Respuesta sin formato</div>
       <div class="st" style="-webkit-user-select:text;user-select:text">${esc(raw)}</div>
     </div>`;
   feed.appendChild(card);
