@@ -631,7 +631,7 @@ async function processText(text) {
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 1024,
           system: SYSTEM,
           messages: history
@@ -656,7 +656,21 @@ async function processText(text) {
       const detail = body?.error?.message || '';
       if (res.status === 401) throw new Error('API key inválida o expirada.\nToca ⚙ y vuelve a escribirla.\n' + detail);
       if (res.status === 403) throw new Error('API key sin permiso para este modelo.\n' + detail);
-      if (res.status === 429) throw new Error('Límite de uso excedido. Espera unos segundos e intenta de nuevo.\n' + detail);
+      if (res.status === 429) {
+        // Auto-retry once after 4 seconds
+        if (!text._retried) {
+          removeLoader();
+          busy = false;
+          history.pop();
+          document.getElementById('mic-status').textContent = '⏳ Esperando 4s (límite de uso)...';
+          await new Promise(r => setTimeout(r, 4000));
+          document.getElementById('mic-status').textContent = '🔴 Escuchando al entrevistador...';
+          text._retried = true;
+          processText(text);
+          return;
+        }
+        throw new Error('Límite de uso excedido.\nRevisa tu saldo en console.anthropic.com\n' + detail);
+      }
       if (res.status === 400) throw new Error('Error en la solicitud (400).\n' + detail);
       if (res.status === 500) throw new Error('Error interno de Anthropic (500). Intenta de nuevo.\n' + detail);
       throw new Error('Error HTTP ' + res.status + ': ' + detail);
