@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>Interview Assistant — José</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0f1117;
+      --surface: #1a1d27;
+      --border:  #2a2d3e;
+      --accent:  #6c63ff;
+      --teal:    #00d4aa;
+      --warn:    #f7b731;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --green:   #10b981;
+      --red:     #ef4444;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 17px; font-weight: 700; color: var(--accent); }
+    .hdr-btns { display: flex; gap: 8px; }
+    .pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 6px 13px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .pill:active { opacity: .6; }
+
+    /* ── Setup screen ───────────────────────────────────────── */
+    #setup {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 20px;
+      gap: 14px;
+    }
+    #setup h2 { font-size: 22px; font-weight: 700; }
+    #setup p  { font-size: 14px; color: var(--muted); text-align: center; max-width: 340px; line-height: 1.6; }
+    .card-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .label-sm { font-size: 12px; color: var(--muted); font-weight: 600; }
+    input[type=password] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 13px 14px;
+      font-size: 16px;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    input:focus { border-color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-primary:active { opacity: .85; }
+
+    /* ── Main app ───────────────────────────────────────────── */
+    #app {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Mic bar ────────────────────────────────────────────── */
+    .mic-bar {
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mic-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #mic-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 26px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, transform .1s;
+      box-shadow: 0 0 0 0 rgba(108,99,255,0);
+    }
+    #mic-btn.listening {
+      background: var(--red);
+      animation: mic-pulse 1.5s infinite;
+    }
+    #mic-btn:active { transform: scale(.93); }
+
+    @keyframes mic-pulse {
+      0%   { box-shadow: 0 0 0 0   rgba(239,68,68,.5); }
+      70%  { box-shadow: 0 0 0 14px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0   rgba(239,68,68,0); }
+    }
+
+    .mic-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    #mic-status {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    #mic-interim {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 18px;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    .tip-box {
+      background: rgba(108,99,255,.08);
+      border: 1px solid rgba(108,99,255,.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Feed ───────────────────────────────────────────────── */
+    #feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      gap: 10px;
+      padding: 48px 20px;
+    }
+    .empty-icon { font-size: 52px; }
+
+    /* ── Cards ──────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      animation: fadein .25s ease;
+    }
+    .card.question  { border-left: 4px solid var(--warn); }
+    .card.statement { border-left: 4px solid var(--accent); }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .cs {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cs:last-child { border-bottom: none; }
+
+    .sl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .sl-orig  { color: var(--muted); }
+    .sl-trans { color: var(--teal); }
+    .sl-ans   { color: var(--warn); }
+    .sl-es    { color: var(--accent); }
+
+    .st {
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .bq { background: rgba(247,183,49,.15); color: var(--warn); }
+    .bs { background: rgba(108,99,255,.15);  color: var(--accent); }
+
+    .copy-btn {
+      display: inline-block;
+      margin-top: 8px;
+      background: rgba(108,99,255,.15);
+      color: var(--accent);
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .copy-btn:active { opacity: .7; }
+
+    /* ── Loader ─────────────────────────────────────────────── */
+    .loader {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ──────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 11px 20px;
+      border-radius: 12px;
+      font-size: 14px; font-weight: 600;
+      transition: transform .3s;
+      z-index: 999;
+      max-width: 320px;
+      text-align: center;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.ok  { background: var(--green); color: #fff; }
+    #toast.err { background: var(--red);   color: #fff; }
+
+    /* ── Settings sheet ─────────────────────────────────────── */
+    #settings {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      z-index: 500;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #settings.open { display: flex; }
+    .sheet {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 20px 44px;
+      width: 100%; max-width: 500px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .sheet h3 { font-size: 18px; font-weight: 700; }
+    .sheet-close {
+      background: var(--border); border: none; color: var(--text);
+      border-radius: 10px; padding: 13px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎧 Interview Assistant</h1>
+  <div class="hdr-btns">
+    <button class="pill" onclick="openSettings()">⚙</button>
+    <button class="pill" onclick="clearFeed()">🗑</button>
+  </div>
+</header>
+
+<!-- ── Setup ──────────────────────────────────────────────── -->
+<div id="setup">
+  <div style="font-size:56px">🔑</div>
+  <h2>Configura tu API Key</h2>
+  <p>Necesitas una clave de Anthropic (gratis en <strong>console.anthropic.com</strong>). Se guarda solo en este dispositivo.</p>
+  <div class="card-box">
+    <div class="label-sm">ANTHROPIC API KEY</div>
+    <input type="password" id="setup-key" placeholder="sk-ant-api03-..."
+           autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <button class="btn-primary" onclick="saveKey()">Guardar y comenzar →</button>
+  </div>
+</div>
+
+<!-- ── App ────────────────────────────────────────────────── -->
+<div id="app">
+  <div class="mic-bar">
+    <div class="mic-row">
+      <button id="mic-btn" onclick="toggleMic()">🎤</button>
+      <div class="mic-info">
+        <div id="mic-status">Toca el micrófono para escuchar</div>
+        <div id="mic-interim"></div>
+      </div>
+    </div>
+    <div class="tip-box" id="tip">
+      💡 Pon el iPad cerca de los altavoces de la computadora donde tienes Zoom. El micrófono del iPad escuchará la voz del entrevistador automáticamente.
+    </div>
+  </div>
+
+  <div id="feed">
+    <div class="empty-state" id="empty-hint">
+      <div class="empty-icon">👆</div>
+      <div>Toca el botón <strong>🎤</strong> y habla (o pon el iPad cerca de los altavoces).<br><br>
+      Claude va a traducir al español y sugerirte qué responder en inglés.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings sheet ────────────────────────────────────── -->
+<div id="settings">
+  <div class="sheet">
+    <h3>⚙ Configuración</h3>
+    <div class="label-sm">API KEY DE ANTHROPIC</div>
+    <input type="password" id="modal-key" placeholder="sk-ant-..."
+           autocomplete="off" autocorrect="off" spellcheck="false"
+           style="background:var(--bg);border:1px solid var(--border);border-radius:10px;
+                  color:var(--text);padding:13px 14px;font-size:16px;outline:none;width:100%;
+                  -webkit-user-select:text;user-select:text;"/>
+    <button class="btn-primary" onclick="updateKey()">Guardar</button>
+    <button class="sheet-close" onclick="closeSettings()">Cancelar</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Profile ───────────────────────────────────────────────────────────────────
+const PROFILE = `
+Full name: José Joaquín Hernández Comas
+Current role: Maintenance Technician II
+Employer: American Landmark Apartments – Azure Carnes Crossroads, Summerville SC (Jun 2026–Present)
+Location: Hanahan, SC | Authorized to work in the US | SC Driver's License
+
+SUMMARY: Bilingual (Spanish native, English conversational) Maintenance Technician II. 13+ years combined experience in US residential multifamily maintenance and industrial mechanical engineering in Colombia. EPA 608 Universal certified. Strong HVAC, electrical, plumbing, appliance, and make-ready skills. Self-taught in digital tools and app development.
+
+CERTIFICATIONS: EPA 608 Universal (all refrigerant types) • HVAC competency • Pool/spa operation • NATE Heat Pump (in progress) • ASME B31.3 trained • AutoCAD technical level
+
+TECHNICAL SKILLS:
+- HVAC: diagnosis, electrical measurements, refrigerant charging, condensate, coils, heat pumps
+- Electrical: outlets, switches, breakers, lighting
+- Plumbing: leaks, valves, toilet components, drain lines
+- Appliances: refrigerators, dishwashers, washers/dryers, stoves, disposals, water heaters
+- Make-ready / unit turnover, drywall, painting, carpentry
+- Software: AppWork, NetVendor, HappyCo/Yardi, AutoCAD, Microsoft Project
+
+US WORK HISTORY:
+1. Maintenance Technician II — American Landmark Apartments (Azure Carnes Crossroads), Summerville SC | Jun 2026–Present
+2. Maintenance Technician — Bell Partners, Summerville SC | Jan–Jun 2026
+3. Maintenance Technician — Princeton Management LLC, Goose Creek SC | Oct 2024–Jan 2026
+
+INTERNATIONAL (Colombia, 2011–2024):
+- Mechanical Resident Engineer — IMPORTEG JM SAS (2023–2024)
+- Resident Engineer — Joules Ingeniería Mec SAS (2022–2023)
+- Operations Supervisor / Resident Engineer — Technical Service SAS (2017–2021)
+- Mechanical Supervisor / Installation Supervisor — PERT DPM S.A (2011–2015)
+13+ years: process piping, tanks, industrial systems, welding QC under ASME B31.3, P&ID drawings, sandblasting, industrial coatings, corrosion control.
+
+EDUCATION: UNAD Colombia (Industrial Engineering, 2 semesters) • EAN Colombia (Production Engineering, 1 semester)
+
+ENTREPRENEURIAL: Property management, private transportation, built websites/APIs/automations, AI phone receptionist, personal apps (budget analyzer, P2P transfers, work order automation).
+
+GOALS: Advance to Lead/Supervisor Technician; obtain NATE certification; long-term real estate and property management business.
+
+STRENGTHS: Hands-on HVAC/electrical/plumbing + 13yr industrial engineering background. Fast learner, self-taught, action-oriented. Reliable, calm under pressure, manages multiple tasks in parallel.
+
+ENGLISH: Conversational in workplace settings, actively building technical fluency.
+`.trim();
+
+const SYSTEM = `You are a real-time interview assistant for José Joaquín Hernández Comas, a Maintenance Technician II.
+
+José is a native Spanish speaker being interviewed in English for maintenance technician positions. His English is conversational — suggested answers must sound natural and simple, NOT formal or academic.
+
+PROFILE:
+${PROFILE}
+
+YOUR TASK for each thing the interviewer says:
+1. "translation": translate to Spanish what was said (so José understands immediately)
+2. "is_question": true if it's a question, false if statement/greeting/other
+3. If question → "suggested_answer": write what José should say out loud in English
+   - Use real specifics: EPA 608, AppWork, Yardi, HappyCo, ASME B31.3, company names, years
+   - 2–4 sentences, conversational and confident, simple vocabulary
+   - "answer_in_spanish": same answer translated to Spanish (so José knows what he's about to say)
+4. If NOT a question → suggested_answer and answer_in_spanish are null
+
+Maintain conversation context across all turns. Never invent experience not in the profile.
+Respond ONLY with valid JSON, no markdown:
+{"original":"...","translation":"...","is_question":true,"suggested_answer":"...","answer_in_spanish":"..."}`;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let apiKey   = localStorage.getItem('ia_key') || '';
+let history  = [];
+let busy     = false;
+let recog    = null;
+let isListening = false;
+let pendingText = '';
+let silenceTimer = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  if (apiKey) showApp();
+};
+
+function showApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+}
+
+// ── API Key ───────────────────────────────────────────────────────────────────
+function saveKey() {
+  const k = document.getElementById('setup-key').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('La clave debe empezar con sk-ant-', false); return; }
+  apiKey = k;
+  localStorage.setItem('ia_key', k);
+  showApp();
+}
+function updateKey() {
+  const k = document.getElementById('modal-key').value.trim();
+  if (!k.startsWith('sk-ant-')) { toast('Clave inválida', false); return; }
+  apiKey = k;
+  localStorage.setItem('ia_key', k);
+  closeSettings();
+  toast('✓ Clave guardada', true);
+}
+
+// ── Microphone / SpeechRecognition ───────────────────────────────────────────
+function toggleMic() {
+  if (isListening) stopMic();
+  else startMic();
+}
+
+function startMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    toast('Tu navegador no soporta reconocimiento de voz. Usa Safari en iOS 15+.', false);
+    return;
+  }
+
+  recog = new SR();
+  recog.lang = 'en-US';       // Interviewer speaks English
+  recog.continuous = false;   // iOS doesn't support continuous reliably
+  recog.interimResults = true;
+  recog.maxAlternatives = 1;
+
+  recog.onstart = () => {
+    isListening = true;
+    document.getElementById('mic-btn').classList.add('listening');
+    document.getElementById('mic-btn').textContent = '⏹';
+    document.getElementById('mic-status').textContent = '🔴 Escuchando al entrevistador...';
+    document.getElementById('tip').style.display = 'none';
+  };
+
+  recog.onresult = (e) => {
+    let interim = '';
+    let finalText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('mic-interim').textContent = interim || finalText;
+
+    if (finalText.trim()) {
+      pendingText += ' ' + finalText.trim();
+      // Debounce: wait 1.5s of no new speech before processing
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        const text = pendingText.trim();
+        pendingText = '';
+        document.getElementById('mic-interim').textContent = '';
+        if (text.length > 2) processText(text);
+      }, 1500);
+    }
+  };
+
+  recog.onerror = (e) => {
+    if (e.error === 'no-speech') { /* restart silently */ }
+    else if (e.error === 'not-allowed') {
+      toast('Permite el acceso al micrófono en Configuración → Safari', false);
+      stopMic(); return;
+    }
+  };
+
+  // iOS stops recognition after each utterance — restart automatically
+  recog.onend = () => {
+    if (isListening) {
+      try { recog.start(); } catch(_) {}
+    }
+  };
+
+  try { recog.start(); }
+  catch(e) { toast('Error al iniciar micrófono: ' + e.message, false); }
+}
+
+function stopMic() {
+  isListening = false;
+  if (recog) { try { recog.stop(); } catch(_) {} recog = null; }
+  document.getElementById('mic-btn').classList.remove('listening');
+  document.getElementById('mic-btn').textContent = '🎤';
+  document.getElementById('mic-status').textContent = 'Toca el micrófono para escuchar';
+  document.getElementById('mic-interim').textContent = '';
+  document.getElementById('tip').style.display = '';
+  clearTimeout(silenceTimer);
+}
+
+// ── Claude API ────────────────────────────────────────────────────────────────
+async function processText(text) {
+  if (busy) return;
+  busy = true;
+  removeEmpty();
+  showLoader();
+
+  history.push({ role: 'user', content: `The interviewer said: "${text}"` });
+  if (history.length > 30) history = history.slice(-30);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: SYSTEM,
+        messages: history
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.content[0].text.trim();
+    history.push({ role: 'assistant', content: raw });
+
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch {
+      const m = raw.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    removeLoader();
+    if (parsed) renderCard(parsed);
+    else toast('Error al parsear respuesta de Claude', false);
+
+  } catch(e) {
+    removeLoader();
+    toast('Error: ' + e.message, false);
+  } finally {
+    busy = false;
+  }
+}
+
+// ── Render card ───────────────────────────────────────────────────────────────
+function renderCard(d) {
+  const feed = document.getElementById('feed');
+  const card = document.createElement('div');
+  card.className = 'card ' + (d.is_question ? 'question' : 'statement');
+
+  const badge = `<span class="badge ${d.is_question ? 'bq' : 'bs'}">${d.is_question ? '❓ Pregunta' : '💬 Afirmación'}</span>`;
+
+  let html = `
+    <div class="cs">
+      ${badge}
+      <div class="sl sl-orig">Entrevistador dijo (inglés)</div>
+      <div class="st">${esc(d.original)}</div>
+    </div>
+    <div class="cs">
+      <div class="sl sl-trans">Lo que significa (español)</div>
+      <div class="st">${esc(d.translation)}</div>
+    </div>`;
+
+  if (d.is_question && d.suggested_answer) {
+    html += `
+    <div class="cs">
+      <div class="sl sl-ans">Di esto en inglés 👇</div>
+      <div class="st">${esc(d.suggested_answer)}</div>
+      <button class="copy-btn" onclick="copyText(this,${JSON.stringify(d.suggested_answer)})">📋 Copiar</button>
+    </div>
+    <div class="cs">
+      <div class="sl sl-es">Lo que significa tu respuesta (español)</div>
+      <div class="st">${esc(d.answer_in_spanish || '')}</div>
+    </div>`;
+  }
+
+  card.innerHTML = html;
+  feed.appendChild(card);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function copyText(btn, text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = '📋 Copiar', 2000);
+  } catch { toast('No se pudo copiar', false); }
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function showLoader() {
+  const el = document.createElement('div');
+  el.className = 'loader'; el.id = 'loader';
+  el.innerHTML = '<div class="spinner"></div> Claude está procesando...';
+  const feed = document.getElementById('feed');
+  feed.appendChild(el);
+  feed.scrollTop = feed.scrollHeight;
+}
+function removeLoader() { document.getElementById('loader')?.remove(); }
+function removeEmpty()  { document.getElementById('empty-hint')?.remove(); }
+
+function clearFeed() {
+  const feed = document.getElementById('feed');
+  feed.innerHTML = '';
+  history = [];
+  const e = document.createElement('div');
+  e.className = 'empty-state'; e.id = 'empty-hint';
+  e.innerHTML = '<div class="empty-icon">💬</div><div>Pantalla limpiada. Toca 🎤 para continuar.</div>';
+  feed.appendChild(e);
+}
+
+let toastT;
+function toast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (ok ? 'ok' : 'err');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function openSettings()  {
+  document.getElementById('modal-key').value = apiKey;
+  document.getElementById('settings').classList.add('open');
+}
+function closeSettings() { document.getElementById('settings').classList.remove('open'); }
+</script>
+</body>
+</html>
