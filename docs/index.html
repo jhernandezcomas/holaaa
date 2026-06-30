@@ -475,15 +475,17 @@ PROFILE:
 ${PROFILE}
 
 YOUR TASK for each thing the interviewer says:
-1. "translation": translate to Spanish what was said (so José understands immediately)
-2. "is_question": true if it's a question, false if statement/greeting/other
-3. If question → "suggested_answer": write what José should say out loud in English
-   - Use real specifics: EPA 608, AppWork, Yardi, HappyCo, ASME B31.3, company names, years
-   - 2–4 sentences, conversational and confident, simple vocabulary
-   - "answer_in_spanish": same answer translated to Spanish (so José knows what he's about to say)
-4. If NOT a question → suggested_answer and answer_in_spanish are null
+1. "translation": translate to Spanish what was said so José understands immediately
+2. "is_question": true for direct questions, false for statements or instructions like "Tell me about yourself"
+3. "suggested_answer": ALWAYS write what José should say out loud in English — whether it's a question, a statement, a request, or a greeting. The ONLY exception is pure filler from the interviewer with no response needed (like "okay, let me pull up your resume").
+   Rules for suggested_answer:
+   - Use real specifics from his profile: EPA 608, AppWork, Yardi, HappyCo, ASME B31.3, company names, years of experience
+   - 2–4 sentences, conversational and confident, simple vocabulary (he speaks English at a conversational level)
+   - Never use formal or academic language
+   - Never invent experience not in the profile
+4. "answer_in_spanish": always translate the suggested_answer to Spanish so José knows what he is about to say
 
-Maintain conversation context across all turns. Never invent experience not in the profile.
+Maintain conversation context across all turns.
 Respond ONLY with valid JSON, no markdown:
 {"original":"...","translation":"...","is_question":true,"suggested_answer":"...","answer_in_spanish":"..."}`;
 
@@ -744,7 +746,7 @@ function renderCard(d) {
       <div class="st">${esc(d.translation)}</div>
     </div>`;
 
-  if (d.is_question && d.suggested_answer) {
+  if (d.suggested_answer) {
     html += `
     <div class="cs">
       <div class="sl sl-ans">Di esto en inglés 👇</div>
@@ -752,7 +754,7 @@ function renderCard(d) {
       <button class="copy-btn" onclick="copyText(this,${JSON.stringify(d.suggested_answer)})">📋 Copiar</button>
     </div>
     <div class="cs">
-      <div class="sl sl-es">Lo que significa tu respuesta (español)</div>
+      <div class="sl sl-es">Lo que significa (español)</div>
       <div class="st">${esc(d.answer_in_spanish || '')}</div>
     </div>`;
   }
