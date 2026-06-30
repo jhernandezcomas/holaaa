@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Assistant</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --border:   #2a2d3e;
+      --accent:   #6c63ff;
+      --accent2:  #00d4aa;
+      --warn:     #f7b731;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --green:    #10b981;
+      --red:      #ef4444;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      max-width: 260px;
+    }
+
+    button {
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: .85; }
+    button:disabled { opacity: .4; cursor: default; }
+
+    #btn-start  { background: var(--green);  color: #fff; }
+    #btn-stop   { background: var(--red);    color: #fff; }
+    #btn-reset  { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    #btn-clear  { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.4s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+
+    /* ── Main Layout ─────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      grid-template-rows: auto 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    /* ── Live Feed (top-left) ────────────────────────────────────── */
+    .live-panel {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #live-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .live-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      animation: fadein .2s ease;
+    }
+
+    @keyframes fadein { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
+
+    .live-chip.partial { border-color: var(--accent); color: var(--muted); font-style: italic; }
+
+    /* ── Analysis area (right) ───────────────────────────────────── */
+    .analysis-panel {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #analysis-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadein .25s ease;
+    }
+
+    .card.question { border-left: 3px solid var(--warn); }
+    .card.statement { border-left: 3px solid var(--accent); }
+
+    .card-section {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .label-original    { color: var(--muted); }
+    .label-translation { color: var(--accent2); }
+    .label-answer      { color: var(--warn); }
+    .label-answer-es   { color: var(--accent); }
+
+    .section-text {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    .badge-q  { background: rgba(247,183,49,.15); color: var(--warn); }
+    .badge-s  { background: rgba(108,99,255,.15);  color: var(--accent); }
+
+    /* ── Empty state ─────────────────────────────────────────────── */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .empty-icon { font-size: 40px; }
+
+    /* ── Toast ───────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: transform .3s ease;
+      z-index: 100;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Connection status bar ───────────────────────────────────── */
+    #status-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 5px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      gap: 16px;
+    }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+      .live-panel { grid-column: 1; grid-row: 1; border-right: none; border-bottom: 1px solid var(--border); max-height: 200px; }
+      .analysis-panel { grid-column: 1; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎧 Interview Assistant</h1>
+  <div class="controls">
+    <select id="device-select"><option value="">Cargando dispositivos...</option></select>
+    <div class="dot" id="status-dot"></div>
+    <button id="btn-start">▶ Iniciar</button>
+    <button id="btn-stop" disabled>■ Detener</button>
+    <button id="btn-reset">↺ Reset contexto</button>
+    <button id="btn-clear">🗑 Limpiar</button>
+  </div>
+</header>
+
+<main>
+  <!-- Left: live transcription stream -->
+  <section class="live-panel">
+    <div class="panel-title">🎙 Transcripción en vivo</div>
+    <div id="live-feed">
+      <div class="empty-state">
+        <div class="empty-icon">👂</div>
+        <div>Selecciona un dispositivo de audio<br>y pulsa <strong>Iniciar</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right: Claude analysis cards -->
+  <section class="analysis-panel">
+    <div class="panel-title">🤖 Análisis de Claude</div>
+    <div id="analysis-feed">
+      <div class="empty-state" id="analysis-empty">
+        <div class="empty-icon">💬</div>
+        <div>Las traducciones y sugerencias de respuesta<br>aparecerán aquí cuando el entrevistador hable</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="status-bar">
+  <span id="conn-status">⬤ Desconectado</span>
+  <span id="msg-count">0 mensajes procesados</span>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const deviceSelect = $('device-select');
+  const btnStart     = $('btn-start');
+  const btnStop      = $('btn-stop');
+  const btnReset     = $('btn-reset');
+  const btnClear     = $('btn-clear');
+  const liveFeed     = $('live-feed');
+  const analysisFeed = $('analysis-feed');
+  const statusDot    = $('status-dot');
+  const connStatus   = $('conn-status');
+  const msgCount     = $('msg-count');
+  const toastEl      = $('toast');
+
+  let ws = null;
+  let msgCounter = 0;
+  let liveEl = null;    // current partial transcription element
+  let liveTimer = null;
+
+  // ── Toast ──────────────────────────────────────────────────────────
+  function toast(msg, duration = 2500) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), duration);
+  }
+
+  // ── Devices ────────────────────────────────────────────────────────
+  async function loadDevices() {
+    try {
+      const res = await fetch('/api/devices');
+      const { devices } = await res.json();
+      deviceSelect.innerHTML = '<option value="">-- Seleccionar dispositivo --</option>';
+      devices.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        // Highlight monitor sources (PulseAudio loopback = speaker output capture)
+        const isMonitor = d.name.toLowerCase().includes('monitor');
+        opt.textContent = (isMonitor ? '🔊 ' : '🎙 ') + d.name;
+        if (isMonitor) opt.style.color = '#00d4aa';
+        deviceSelect.appendChild(opt);
+      });
+    } catch (e) {
+      deviceSelect.innerHTML = '<option value="">Error cargando dispositivos</option>';
+    }
+  }
+
+  // ── WebSocket ──────────────────────────────────────────────────────
+  function connectWs() {
+    ws = new WebSocket(`ws://${location.host}/ws`);
+
+    ws.onopen = () => {
+      connStatus.textContent = '⬤ Conectado';
+      connStatus.style.color = 'var(--green)';
+    };
+
+    ws.onclose = () => {
+      connStatus.textContent = '⬤ Desconectado';
+      connStatus.style.color = 'var(--muted)';
+      setTimeout(connectWs, 2000);
+    };
+
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'live')     handleLive(msg.text);
+      if (msg.type === 'analysis') handleAnalysis(msg.data);
+    };
+  }
+
+  // ── Live transcription ─────────────────────────────────────────────
+  function handleLive(text) {
+    removeEmptyState(liveFeed);
+
+    // Create a new chip or update existing partial one
+    if (!liveEl) {
+      liveEl = document.createElement('div');
+      liveEl.className = 'live-chip partial';
+      liveFeed.appendChild(liveEl);
+    }
+    liveEl.textContent = text;
+    liveFeed.scrollTop = liveFeed.scrollHeight;
+
+    // After silence, mark the chip as finalized
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(() => { liveEl = null; }, 4000);
+  }
+
+  function finalizeLastChip() {
+    if (liveEl) {
+      liveEl.classList.remove('partial');
+      liveEl = null;
+    }
+  }
+
+  // ── Analysis card ──────────────────────────────────────────────────
+  function handleAnalysis(data) {
+    finalizeLastChip();
+    removeEmptyState(analysisFeed);
+
+    msgCounter++;
+    msgCount.textContent = `${msgCounter} mensaje${msgCounter !== 1 ? 's' : ''} procesado${msgCounter !== 1 ? 's' : ''}`;
+
+    const card = document.createElement('div');
+    card.className = `card ${data.is_question ? 'question' : 'statement'}`;
+
+    // Badge
+    const badge = `<span class="badge ${data.is_question ? 'badge-q' : 'badge-s'}">${data.is_question ? '❓ Pregunta' : '💬 Afirmación'}</span>`;
+
+    // Original
+    let html = `
+      <div class="card-section">
+        ${badge}
+        <div class="section-label label-original">Entrevistador dijo (inglés)</div>
+        <div class="section-text">${esc(data.original)}</div>
+      </div>
+      <div class="card-section">
+        <div class="section-label label-translation">Traducción al español</div>
+        <div class="section-text">${esc(data.translation)}</div>
+      </div>`;
+
+    if (data.is_question && data.suggested_answer) {
+      html += `
+      <div class="card-section">
+        <div class="section-label label-answer">Puedes responder en inglés 👇</div>
+        <div class="section-text">${esc(data.suggested_answer)}</div>
+      </div>
+      <div class="card-section">
+        <div class="section-label label-answer-es">Lo que significa tu respuesta (español)</div>
+        <div class="section-text">${esc(data.answer_in_spanish || '')}</div>
+      </div>`;
+    }
+
+    card.innerHTML = html;
+    analysisFeed.appendChild(card);
+    analysisFeed.scrollTop = analysisFeed.scrollHeight;
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function removeEmptyState(panel) {
+    const empty = panel.querySelector('.empty-state');
+    if (empty) empty.remove();
+  }
+
+  // ── Controls ───────────────────────────────────────────────────────
+  btnStart.addEventListener('click', async () => {
+    const deviceId = deviceSelect.value;
+    const url = deviceId ? `/api/start?device_id=${deviceId}` : '/api/start';
+    const res = await fetch(url, { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'started' || data.status === 'already_running') {
+      btnStart.disabled = true;
+      btnStop.disabled  = false;
+      statusDot.classList.add('active');
+      toast('▶ Captura de audio iniciada');
+    } else {
+      toast(`⚠ Error: ${data.message || data.status}`);
+    }
+  });
+
+  btnStop.addEventListener('click', async () => {
+    await fetch('/api/stop', { method: 'POST' });
+    btnStart.disabled = false;
+    btnStop.disabled  = true;
+    statusDot.classList.remove('active');
+    toast('■ Captura detenida');
+  });
+
+  btnReset.addEventListener('click', async () => {
+    await fetch('/api/reset', { method: 'POST' });
+    toast('↺ Contexto de conversación reiniciado');
+  });
+
+  btnClear.addEventListener('click', () => {
+    liveFeed.innerHTML = '';
+    analysisFeed.innerHTML = '';
+    msgCounter = 0;
+    msgCount.textContent = '0 mensajes procesados';
+    toast('🗑 Pantalla limpiada');
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────
+  loadDevices();
+  connectWs();
+</script>
+</body>
+</html>
