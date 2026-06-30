@@ -427,52 +427,31 @@
 <script>
 // ── Profile ───────────────────────────────────────────────────────────────────
 const PROFILE = `
-Full name: José Joaquín Hernández Comas
-Current role: Maintenance Technician II
-Employer: American Landmark Apartments – Azure Carnes Crossroads, Summerville SC (Jun 2026–Present)
-Location: Hanahan, SC | Authorized to work in the US | SC Driver's License
+NAME: José Joaquín Hernández Comas | Maintenance Technician II | American Landmark Apartments, Summerville SC | Jun 2026–Present
 
-SUMMARY: Bilingual (Spanish native, English conversational) Maintenance Technician II. About 2 years experience in US residential multifamily maintenance. Before that, 13+ years as industrial engineering supervisor in Colombia (pipelines, tanks, oil & gas projects). EPA 608 Universal certified. Strong HVAC, electrical, plumbing, appliance, and make-ready skills. Self-taught in digital tools and app development.
+SUMMARY: ~2yrs US multifamily residential maintenance + 13yrs industrial engineering supervisor Colombia (pipelines, tanks, oil & gas, ASME B31.3). EPA 608 Universal. Bilingual ES/EN. HVAC, electrical, plumbing, appliances, make-ready.
 
-CERTIFICATIONS: EPA 608 Universal (all refrigerant types) • Bell Partners CBMT HVAC Certification (completed) • HVAC competency • Pool/spa operation • NATE Heat Pump Installer & Service (in progress) • ASME B31.3 trained • AutoCAD technical level
+CERTS: EPA 608 Universal • Bell Partners CBMT HVAC (completed) • NATE Heat Pump Installer/Service (in progress) • ASME B31.3 trained • AutoCAD
 
-TECHNICAL SKILLS:
-- HVAC: diagnosis, refrigerant charging, condensate drain cleaning, float switch, coil cleaning, heat pumps, AC not-cooling workflow (thermostat→airflow→filter/coil→drain→outdoor unit)
-- Electrical: outlets, switches, breakers, lighting, GFI/GFCI troubleshooting, multimeter diagnostics
-- Plumbing: leaks, valves, toilet components, drain lines, PVC repair, shower valves, water intrusion diagnosis (multi-floor, HVAC vs. plumbing source)
-- Appliances: refrigerators (defrost drain clog, water valve), dishwashers (GFI, blockage, preventive), garbage disposal (diagnosis & replacement), washers/dryers, stoves, water heaters
-- Bathroom remodeling: full demolition, moisture damage repair, plumbing rerouting, shower valve & drain install, tub surround, waterproofing, drywall, finishing
-- Kitchen remodeling: cabinet removal, wall prep, new cabinet installation
-- Make-ready / unit turnover, drywall, painting, carpentry, door closer repair, dryer vent hood installation
-- Work orders: professional English notes in HappyCo, Yardi, Bell Partners systems
-- Software: AppWork, NetVendor, HappyCo/Yardi, LivCor, AutoCAD, Microsoft Project
+SKILLS:
+HVAC: diagnosis, refrigerant charging, condensate drain/float switch, coil cleaning, heat pumps, split+package units, AC not-cooling workflow
+Electrical: outlets/switches/breakers/lighting, GFI/GFCI, multimeter
+Plumbing: leaks, valves, toilet components, drain lines, PVC repair, shower valves, multi-floor water intrusion diagnosis
+Appliances: fridge (defrost drain clog, water valve), dishwasher (GFI, blockage), garbage disposal, washer/dryer/stove/water heater
+Remodel: full bathroom (demo→moisture repair→plumbing reroute→shower valve+drain→tub surround→waterproofing→drywall→finish) | kitchen cabinets (removal+install)
+General: make-ready/turnover, drywall, paint, door closer, dryer vent hood
+Software: AppWork, HappyCo/Yardi, NetVendor, LivCor, AutoCAD, Microsoft Project
 
-US WORK HISTORY:
-1. Maintenance Technician II — American Landmark Apartments (Azure Carnes Crossroads), Summerville SC | Jun 2026–Present
-2. Maintenance Technician — Bell Partners, Summerville SC | Jan–Jun 2026 [CBMT HVAC cert completed; on-call emergency repairs; LivCor + HappyCo/Yardi; property sold — stayed full 60-day transition]
-3. Maintenance Technician — Princeton Management LLC, Goose Creek SC | Oct 2024–Jan 2026 [left for better opportunity at Bell Partners; did full bathroom remodels and kitchen cabinet work]
+JOBS:
+1. American Landmark Apartments – Maint. Tech. II (Jun 2026–now): full-scope HVAC/electrical/plumbing/appliances, AppWork+HappyCo/Yardi
+2. Bell Partners – Maint. Tech. (Jan–Jun 2026): CBMT HVAC cert, high work-order volume, LivCor; property sold → stayed full 60-day transition out of loyalty
+3. Princeton Management LLC – Maint. Tech. (Oct 2024–Jan 2026): full bathroom remodels, kitchen cabinets; LEFT for better opportunity at Bell Partners
 
-INTERNATIONAL (Colombia, 2011–2024):
-- Mechanical Resident Engineer — IMPORTEG JM SAS (2023–2024)
-- Resident Engineer — Joules Ingeniería Mec SAS (2022–2023)
-- Operations Supervisor / Resident Engineer — Technical Service SAS (2017–2021)
-- Mechanical Supervisor / Installation Supervisor — PERT DPM S.A (2011–2015)
-13+ years: process piping, tanks, industrial systems, welding QC under ASME B31.3, P&ID drawings, sandblasting, industrial coatings, corrosion control.
-
-EDUCATION: UNAD Colombia (Industrial Engineering, 2 semesters) • EAN Colombia (Production Engineering, 1 semester)
-
-ENTREPRENEURIAL: Property management, private transportation, built websites/APIs/automations, AI phone receptionist, personal apps (budget analyzer, P2P transfers, work order automation).
-
-WHY LEFT PRINCETON: Got a better opportunity at Bell Partners. Left on good terms.
-WHY LEFT BELL PARTNERS: Property was sold; stayed full 60-day transition to help management with handover — no maintenance staff left, chose loyalty over quick exit. Then moved to American Landmark.
-
-STORY - MOST COMPLEX REPAIR: Full bathroom remodel at Princeton — demo of tile/drywall, repaired moisture-damaged framing, rerouted plumbing, installed shower valve and drain, fitted tub surround with waterproofing, rebuilt walls, finished space from start to finish.
-
-GOALS: Advance to Lead/Supervisor Technician; obtain NATE certification; long-term real estate and property management business.
-
-STRENGTHS: Hands-on HVAC/electrical/plumbing + 13yr industrial engineering background. Fast learner, self-taught, action-oriented. Reliable, calm under pressure, manages multiple tasks in parallel.
-
-ENGLISH: Conversational in workplace settings, actively building technical fluency.
+WHY LEFT PRINCETON: Better opportunity at Bell Partners. Left on good terms.
+WHY LEFT BELL: Property sold. Stayed full 60-day transition — no staff left, finished what I started, then moved to American Landmark.
+COMPLEX REPAIR: Full bathroom remodel at Princeton — demo, moisture frame repair, plumbing reroute, shower valve+drain, tub surround, waterproof, drywall, finish.
+STRENGTH: Hands-on HVAC/electrical/plumbing + 13yr industrial background. Fast learner, action-oriented, calm under pressure.
+ENGLISH: Workplace conversational, actively building technical fluency.
 `.trim();
 
 const SYSTEM = `You are a real-time interview assistant for José Joaquín Hernández Comas, a Maintenance Technician II.
@@ -581,7 +560,7 @@ function startMic() {
         document.getElementById('mic-interim').textContent = '';
         stopMic();
         if (text.length > 2) processText(text);
-      }, 1000);
+      }, 650);
     }
   };
 
@@ -680,7 +659,7 @@ async function processText(text) {
   removeEmpty();
 
   history.push({ role: 'user', content: `The interviewer said: "${text}"` });
-  if (history.length > 16) history = history.slice(-16);
+  if (history.length > 8) history = history.slice(-8);
 
   const liveCard = createLiveCard();
   const seen = {};
