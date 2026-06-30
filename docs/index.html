@@ -494,8 +494,10 @@ YOUR TASK for each thing the interviewer says:
 4. "answer_in_spanish": always translate the suggested_answer to Spanish so José knows what he is about to say
 
 Maintain conversation context across all turns.
-Respond ONLY with valid JSON, no markdown:
-{"original":"...","translation":"...","is_question":true,"suggested_answer":"...","answer_in_spanish":"..."}`;
+Respond ONLY with valid JSON. Do NOT include "original". Your reply continues from {"translation": — output the translation value first, then the rest:
+{"translation":"...","is_question":true,"suggested_answer":"...","answer_in_spanish":"..."}`;
+
+const PREFILL = '{"translation":"';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let apiKey   = localStorage.getItem('ia_key') || '';
@@ -698,10 +700,10 @@ async function processText(text) {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 600,
+          max_tokens: 550,
           stream: true,
           system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-          messages: history
+          messages: [...history, { role: 'assistant', content: PREFILL }]
         })
       });
     } catch(netErr) {
@@ -758,7 +760,7 @@ async function processText(text) {
           const evt = JSON.parse(data);
           if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
             accumulated += evt.delta.text;
-            updateLiveCard(accumulated, seen);
+            updateLiveCard(PREFILL + accumulated, seen);
           }
         } catch { /* skip malformed event */ }
       }
@@ -766,22 +768,23 @@ async function processText(text) {
 
     if (!accumulated) throw new Error('Claude respondió pero sin contenido. Intenta de nuevo.');
 
-    history.push({ role: 'assistant', content: accumulated });
+    const fullResponse = PREFILL + accumulated;
+    history.push({ role: 'assistant', content: fullResponse });
 
     // ── Parse final JSON and render proper card ───────────────
     let parsed = null;
-    try { parsed = JSON.parse(accumulated); }
+    try { parsed = JSON.parse(fullResponse); }
     catch {
-      const m = accumulated.match(/\{[\s\S]*\}/);
+      const m = fullResponse.match(/\{[\s\S]*\}/);
       if (m) { try { parsed = JSON.parse(m[0]); } catch { parsed = null; } }
     }
 
     liveCard.remove();
 
     if (parsed && parsed.translation) {
-      renderCard(parsed);
+      renderCard(parsed, text);
     } else {
-      renderFallback(text, accumulated);
+      renderFallback(text, fullResponse);
     }
 
   } catch(e) {
@@ -801,12 +804,11 @@ function renderFallback(original, raw) {
 
   if (trans) {
     renderCard({
-      original,
       translation: trans,
       is_question: /\?/.test(original),
       suggested_answer: ans || '',
       answer_in_spanish: ansEs || ''
-    });
+    }, original);
     return;
   }
 
@@ -828,7 +830,8 @@ function renderFallback(original, raw) {
 }
 
 // ── Render card ───────────────────────────────────────────────────────────────
-function renderCard(d) {
+function renderCard(d, originalText) {
+  const orig = originalText || d.original || '';
   const feed = document.getElementById('feed');
   const card = document.createElement('div');
   card.className = 'card ' + (d.is_question ? 'question' : 'statement');
@@ -839,7 +842,7 @@ function renderCard(d) {
     <div class="cs">
       ${badge}
       <div class="sl sl-orig">Entrevistador dijo (inglés)</div>
-      <div class="st">${esc(d.original)}</div>
+      <div class="st">${esc(orig)}</div>
     </div>
     <div class="cs">
       <div class="sl sl-trans">Lo que significa (español)</div>
