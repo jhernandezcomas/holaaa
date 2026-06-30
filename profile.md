@@ -18,8 +18,9 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 
 ## Certifications & Licenses
 - **EPA 608 Universal** — refrigerant handling (all types)
+- **Bell Partners CBMT HVAC Certification** — completed (practical + coursework verified by Maintenance Manager)
 - HVAC competency and pool/spa operation
-- **NATE Heat Pump** — in progress
+- **NATE Heat Pump Installer & Service** — actively studying; covers heat pump diagnosis, refrigerant, electrical, airflow
 - ASME B31.3 (Process Piping) — trained
 - AutoCAD — technical level
 - Microsoft Project
@@ -28,17 +29,29 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 
 ### HVAC
 - Diagnosis, electrical measurements, refrigerant charging
-- Condensate systems, coils, heat pumps
-- Full preventive and corrective maintenance
+- Condensate drain line cleaning, float switch diagnosis and reset
+- Evaporator coil inspection and cleaning
+- Heat pump systems (Installer + Service — NATE certification in progress)
+- Full preventive and corrective maintenance on split and package units
+- Bell Partners internal HVAC certification (CBMT) — completed coursework; practical skills verified by Maintenance Manager
+- AC not cooling diagnosis workflow: thermostat → airflow → filter/coil → drain → outdoor unit (fan + compressor)
 
 ### Electrical
 - Outlets, switches, breakers, lighting fixtures
+- GFI/GFCI troubleshooting and reset
+- Amperimeter measurements for HVAC motors
 
 ### Plumbing
 - Leak detection and repair, valves, toilet components, drain lines
+- Water intrusion diagnosis (multi-floor): isolating HVAC condensate vs. plumbing source vs. resident cause
+- PVC pipe repair (slip-fix couplings, Fernco/Mission couplings)
+- Shower valve replacement, drain component installation
 
 ### Appliances
-- Refrigerators, dishwashers, washers, dryers, stoves, garbage disposals, water heaters
+- Refrigerators: defrost drain clogs (hot water clear), water valve replacement (Frigidaire FFSS2615TS5 standard on current property)
+- Dishwashers: GFI troubleshooting, blockage removal, full preventive maintenance
+- Garbage disposal: diagnosis and replacement
+- Washers, dryers (dryer vent hood installation), stoves, water heaters
 
 ### Remodeling & Renovation
 - **Bathroom remodeling:** full demolition of tile/drywall, repair of moisture-damaged framing, plumbing line adjustments, shower valve and drain component installation, tub surround installation, waterproofing, wall rebuilding, final finishing
@@ -47,8 +60,13 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 ### General Maintenance
 - Make-ready / unit turnover
 - Drywall, painting, carpentry
-- PVC pipe repair (slip-fix couplings, Fernco/Mission couplings)
+- Door closer repair and adjustment
+- Lock/access control issues (rekeying coordination)
 - Multimeter diagnostics (fan motors, water valves, electrical circuits)
+
+### Work Order Documentation
+- Proficient writing professional English work order notes in HappyCo, Yardi, and Bell Partners' on-call emergency system
+- Writes clear technical reports: problem found → diagnosis → work performed → follow-up needed
 
 ### Industrial (Colombia — 13+ years)
 - Process piping, tanks, industrial systems
@@ -71,11 +89,12 @@ Bilingual (Spanish native, English conversational) Maintenance Technician II wit
 
 ### Maintenance Technician
 **Bell Partners** | Summerville, SC | Jan 2026 – Jun 2026
-- Residential maintenance covering HVAC, plumbing, electrical and make-ready units
+- On-call emergency maintenance and daily work orders for multifamily residential community
+- Completed Bell Partners internal HVAC certification (CBMT): coursework + Maintenance Manager practical skills check (pull-down, refrigerant charging, coil cleaning, EPA 608 verification)
 - Trained on LivCor Partnership Playbook property management system
-- Managed and closed out high volume of work orders efficiently; recognized for reliability
-- Supported smooth unit turnover operations
-- Property was acquired and sold; José voluntarily stayed through the entire 60-day transition period to assist management with property handover before moving to next role (demonstrates loyalty and professionalism)
+- Proficient in Bell Partners on-call emergency report form; managed and closed high volume of work orders efficiently
+- Key repairs: HVAC condensate drain clogs, float switch activation, water intrusion between floors, dishwasher GFI/blockage, garbage disposal replacement, refrigerator defrost drain, door closer repair, dryer vent hood installation
+- Property was acquired and sold; stayed full 60-day transition to support management handover before moving to American Landmark
 
 ### Maintenance Technician
 **Princeton Management LLC** | Goose Creek, SC | Oct 2024 – Jan 2026
